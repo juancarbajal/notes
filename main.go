@@ -11,11 +11,12 @@ import (
 // main ...
 func main()  {
 	notesDb := db.NewDb()
-	text := flag.String("a", "", "Note to save.")
+	title := flag.String("t", "", "Title of the note.")
+	text := flag.String("m", "", "Note to save.")
 	search := flag.String("s", "", "Text to search.")
 	flag.Parse()
 	if (*text != "") {
-		ok := notesDb.SaveNote(*text);
+		ok := notesDb.SaveNote(*title, *text);
 		if (ok){
 			fmt.Print("Note saved")
 		} else {
@@ -28,12 +29,15 @@ func main()  {
 		if (ok){
 			for data.Next(){
 				var id int
-				var note string
-				err := data.Scan(&id, &note)
+				var note,title string
+				err := data.Scan(&id, &title, &note)
 				if err != nil {
 					log.Fatal(err)
 				}
-				fmt.Printf("%d | %s\n", id, note)
+				if len(title)>17 {
+					title = title[0:17]+"..."
+				}
+				fmt.Printf("%d | %-20s | %s\n", id, title, note)
 			} 
 		} else {
 			fmt.Print("No data")

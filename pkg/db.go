@@ -29,7 +29,7 @@ func (t *TDb) Init(filename string) {
 
 // create base schema for notes database 
 func (t *TDb) createSchema() {
-	sql := "CREATE TABLE IF NOT EXISTS tb_notes(id unsigned integer primary key desc, note text)" //id is the date of the note
+	sql := "CREATE TABLE IF NOT EXISTS tb_notes(id unsigned integer primary key desc, title text, note text)" //id is the date of the note
 	_, error := t.db.Exec(sql)
 	if error != nil {
 		log.Print("Error to create table")
@@ -38,9 +38,9 @@ func (t *TDb) createSchema() {
 }
 
 // Save a note
-func (t *TDb) SaveNote(note string) bool {
+func (t *TDb) SaveNote(title string, note string) bool {
 	id := time.Now().Unix()
-	sql := fmt.Sprintf("INSERT INTO tb_notes(id, note) VALUES (%d,'%s')", id, note)
+	sql := fmt.Sprintf("INSERT INTO tb_notes(id, title, note) VALUES (%d,'%s', '%s')", id, title, note)
 	_, error := t.db.Exec(sql)
 	if error != nil {
 		log.Print(error)
@@ -51,7 +51,7 @@ func (t *TDb) SaveNote(note string) bool {
 
 // search note by text, use fulltext search
 func (t *TDb) SearchNote(text string) (*sql.Rows, bool) {
-	sql := fmt.Sprintf("SELECT * FROM tb_notes WHERE note like '%%%s%%'", text)
+	sql := fmt.Sprintf("SELECT * FROM tb_notes WHERE note LIKE '%%%s%%' ORDER BY id DESC", text)
 	rows, err := t.db.Query(sql)
 	if err != nil {
 		log.Print("No rows")
